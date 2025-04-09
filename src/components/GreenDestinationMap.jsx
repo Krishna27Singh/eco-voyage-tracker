@@ -109,7 +109,7 @@ const GreenDestinationMap = () => {
         <h3 className="text-lg font-semibold mb-4">
           <span className="flex items-center gap-2">
             <Globe className="h-5 w-5" />
-            Real-Time Green Destination Popularity (GSTC Data)
+            Green Destination Popularity (GSTC Data)
           </span>
         </h3>
         
