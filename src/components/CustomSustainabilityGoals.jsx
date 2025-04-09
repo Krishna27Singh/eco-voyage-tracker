@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Leaf, Zap, Droplet, Recycle, ShoppingBag, Home, Globe } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -88,9 +88,7 @@ const activities = [
 ];
 
 const CustomSustainabilityGoals = () => {
-  const [userGoals, setUserGoals] = useState([
-    { ...presetGoals[0], progress: 0, activities: [] }
-  ]);
+  const [userGoals, setUserGoals] = useState([]);
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [showActivityForm, setShowActivityForm] = useState(false);
   const [activeGoalIndex, setActiveGoalIndex] = useState(0);
@@ -105,6 +103,38 @@ const CustomSustainabilityGoals = () => {
     activity: '',
     amount: 1
   });
+
+  // Load goals from localStorage when component mounts
+  useEffect(() => {
+    const savedGoals = localStorage.getItem('sustainabilityGoals');
+    if (savedGoals) {
+      // Parse saved goals and restore icon functions
+      const parsedGoals = JSON.parse(savedGoals).map(goal => {
+        return {
+          ...goal,
+          icon: getIconForCategory(goal.category)
+        };
+      });
+      setUserGoals(parsedGoals);
+    } else {
+      // Initialize with a default goal if no saved goals
+      setUserGoals([
+        { ...presetGoals[0], progress: 0, activities: [] }
+      ]);
+    }
+  }, []);
+
+  // Save goals to localStorage whenever they change
+  useEffect(() => {
+    if (userGoals.length > 0) {
+      // Remove icon function before saving (can't serialize functions)
+      const goalsToSave = userGoals.map(goal => {
+        const { icon, ...goalWithoutIcon } = goal;
+        return goalWithoutIcon;
+      });
+      localStorage.setItem('sustainabilityGoals', JSON.stringify(goalsToSave));
+    }
+  }, [userGoals]);
 
   const handleAddGoal = () => {
     const selectedPreset = presetGoals.find(goal => goal.category === newGoal.category);

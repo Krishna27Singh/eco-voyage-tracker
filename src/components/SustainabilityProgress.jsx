@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, AreaChart, Area } from 'recharts';
+import YearlySustainabilityProgress from './YearlySustainabilityProgress';
 
 const transportData = [
   { name: 'Flight', emissions: 260 },
@@ -53,29 +54,31 @@ const SustainabilityProgress = () => {
           </div>
         </div>
         
-        <div className="eco-card">
-          <h3 className="text-lg font-semibold mb-4">Sustainable Travel Tips</h3>
-          <div className="space-y-3 text-sm">
-            <div className="pb-2 border-b border-gray-100">
-              <span className="font-medium text-eco-700">Choose rail travel</span>
-              <p className="text-gray-600 mt-1">Trains produce up to 10x fewer carbon emissions than flying.</p>
-            </div>
-            <div className="pb-2 border-b border-gray-100">
-              <span className="font-medium text-eco-700">Pack light</span>
-              <p className="text-gray-600 mt-1">Less weight means less fuel consumed during transport.</p>
-            </div>
-            <div className="pb-2 border-b border-gray-100">
-              <span className="font-medium text-eco-700">Use public transportation</span>
-              <p className="text-gray-600 mt-1">Shared transit reduces per-person emissions.</p>
-            </div>
-            <div className="pb-2 border-b border-gray-100">
-              <span className="font-medium text-eco-700">Stay in eco-certified accommodations</span>
-              <p className="text-gray-600 mt-1">Look for LEED, Green Key, or Green Globe certifications.</p>
-            </div>
-            <div>
-              <span className="font-medium text-eco-700">Support local businesses</span>
-              <p className="text-gray-600 mt-1">Reduces transport emissions and supports local economies.</p>
-            </div>
+        <YearlySustainabilityProgress />
+      </div>
+      
+      <div className="eco-card mt-6">
+        <h3 className="text-lg font-semibold mb-4">Sustainable Travel Tips</h3>
+        <div className="space-y-3 text-sm">
+          <div className="pb-2 border-b border-gray-100">
+            <span className="font-medium text-eco-700">Choose rail travel</span>
+            <p className="text-gray-600 mt-1">Trains produce up to 10x fewer carbon emissions than flying.</p>
+          </div>
+          <div className="pb-2 border-b border-gray-100">
+            <span className="font-medium text-eco-700">Pack light</span>
+            <p className="text-gray-600 mt-1">Less weight means less fuel consumed during transport.</p>
+          </div>
+          <div className="pb-2 border-b border-gray-100">
+            <span className="font-medium text-eco-700">Use public transportation</span>
+            <p className="text-gray-600 mt-1">Shared transit reduces per-person emissions.</p>
+          </div>
+          <div className="pb-2 border-b border-gray-100">
+            <span className="font-medium text-eco-700">Stay in eco-certified accommodations</span>
+            <p className="text-gray-600 mt-1">Look for LEED, Green Key, or Green Globe certifications.</p>
+          </div>
+          <div>
+            <span className="font-medium text-eco-700">Support local businesses</span>
+            <p className="text-gray-600 mt-1">Reduces transport emissions and supports local economies.</p>
           </div>
         </div>
       </div>
