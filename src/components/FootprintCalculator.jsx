@@ -82,6 +82,28 @@ const FootprintCalculator = ({ onCalculate }) => {
     ];
   };
 
+  const renderCustomizedPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, name }) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * Math.PI / 180) * 1.1;
+    const y = cy + radius * Math.sin(-midAngle * Math.PI / 180) * 1.1;
+    
+    // Only show label for segments with significant percentage
+    if (percent < 0.05) return null;
+    
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="#333"
+        textAnchor={x > cx ? 'start' : 'end'}
+        dominantBaseline="central"
+        fontSize={10}
+      >
+        {`${name} ${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
   return (
     <div className="grid md:grid-cols-2 gap-6">
       <div className="eco-card">
@@ -202,30 +224,35 @@ const FootprintCalculator = ({ onCalculate }) => {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={renderCustomizedPieLabel}
                   >
                     {getPieChartData().map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip formatter={(value) => `${value} kg CO₂`} />
-                  <Legend />
+                  <Legend 
+                    layout="horizontal" 
+                    verticalAlign="bottom" 
+                    align="center"
+                    wrapperStyle={{ fontSize: '12px' }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
             
-            {/* Bar Chart (optional) */}
+            {/* Bar Chart */}
             <div className="h-[200px] mb-4">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={getBarChartData()} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" />
+                  <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 12 }} />
                   <Tooltip 
                     formatter={(value) => [`${value} kg CO₂`, 'Emissions']}
                     labelFormatter={() => ''}
                   />
-                  <Bar dataKey="value" name="CO₂ Emissions" fill="#10B981">
+                  <Bar dataKey="value" name="CO₂ Emissions">
                     {getBarChartData().map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}

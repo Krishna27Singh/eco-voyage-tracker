@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Plus, Leaf, Zap, Droplet, Recycle, ShoppingBag, Home, Globe } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const presetGoals = [
   { id: 1, category: 'carbon', label: 'Reduce carbon footprint by 500 kg', target: 500, unit: 'kg', icon: Zap },
@@ -88,7 +89,7 @@ const activities = [
 
 const CustomSustainabilityGoals = () => {
   const [userGoals, setUserGoals] = useState([
-    { ...presetGoals[0], progress: 150, activities: [] }
+    { ...presetGoals[0], progress: 0, activities: [] }
   ]);
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [showActivityForm, setShowActivityForm] = useState(false);
@@ -205,8 +206,52 @@ const CustomSustainabilityGoals = () => {
     return 'Needs Attention';
   };
 
+  const generateChartData = (activities, target) => {
+    if (!activities || activities.length === 0) {
+      return [
+        { date: 'Day 1', progress: 0, target: target / 5 },
+        { date: 'Day 2', progress: 0, target: target * 2 / 5 },
+        { date: 'Day 3', progress: 0, target: target * 3 / 5 },
+        { date: 'Day 4', progress: 0, target: target * 4 / 5 },
+        { date: 'Day 5', progress: 0, target: target }
+      ];
+    }
+
+    // Sort activities by date
+    const sortedActivities = [...activities].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Generate data points with cumulative progress
+    const data = [];
+    let cumulativeProgress = 0;
+    
+    sortedActivities.forEach((activity, index) => {
+      cumulativeProgress += activity.impact;
+      const dateLabel = new Date(activity.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      data.push({
+        date: dateLabel,
+        progress: cumulativeProgress,
+        target: target * (index + 1) / sortedActivities.length
+      });
+    });
+    
+    return data;
+  };
+
   const IconComponent = ({ icon: Icon }) => {
     return <Icon size={20} />;
+  };
+
+  const CustomChartTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 border border-gray-200 rounded shadow-sm text-xs">
+          <p className="font-medium">{label}</p>
+          <p className="text-eco-600">Progress: {payload[0].value}</p>
+          <p className="text-gray-500">Target: {payload[1].value}</p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -373,6 +418,40 @@ const CustomSustainabilityGoals = () => {
                   {getProgressStatus(goal.progress, goal.target)}
                 </span>
               </div>
+            </div>
+            
+            {/* Progress Chart */}
+            <div className="h-32 mb-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={generateChartData(goal.activities, goal.target)}>
+                  <defs>
+                    <linearGradient id={`colorProgress${goal.id}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                  <Tooltip content={<CustomChartTooltip />} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="progress" 
+                    stroke="#10B981" 
+                    fillOpacity={1} 
+                    fill={`url(#colorProgress${goal.id})`} 
+                    name="Progress"
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="target" 
+                    stroke="#94A3B8" 
+                    fill="none" 
+                    strokeDasharray="3 3" 
+                    name="Target"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
             
             {goal.activities.length > 0 && (
