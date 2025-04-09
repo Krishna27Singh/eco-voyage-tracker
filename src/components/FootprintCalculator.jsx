@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const transportOptions = [
   { value: 'flight', label: 'Flight', factor: 0.12 },
@@ -47,6 +48,16 @@ const FootprintCalculator = ({ onCalculate }) => {
     if (onCalculate) {
       onCalculate(totalEmission);
     }
+  };
+
+  // Chart data preparation
+  const getChartData = () => {
+    if (!result) return [];
+    
+    return [
+      { name: 'Transportation', value: Math.round(result.transport) },
+      { name: 'Accommodation', value: Math.round(result.accommodation) }
+    ];
   };
 
   return (
@@ -142,32 +153,20 @@ const FootprintCalculator = ({ onCalculate }) => {
               <p className="text-muted-foreground">CO₂ equivalent</p>
             </div>
             
-            <div className="space-y-3">
-              <div className="bg-gray-100 p-4 rounded-md">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Transportation</span>
-                  <span className="text-sm font-bold">{Math.round(result.transport)} kg CO₂</span>
-                </div>
-                <div className="w-full bg-gray-300 rounded-full h-2">
-                  <div 
-                    className="bg-eco-500 h-2 rounded-full" 
-                    style={{ width: `${(result.transport / result.total) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              <div className="bg-gray-100 p-4 rounded-md">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Accommodation</span>
-                  <span className="text-sm font-bold">{Math.round(result.accommodation)} kg CO₂</span>
-                </div>
-                <div className="w-full bg-gray-300 rounded-full h-2">
-                  <div 
-                    className="bg-eco-500 h-2 rounded-full" 
-                    style={{ width: `${(result.accommodation / result.total) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
+            {/* Carbon Footprint Chart */}
+            <div className="h-[200px] mb-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={getChartData()} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" />
+                  <Tooltip 
+                    formatter={(value) => [`${value} kg CO₂`, 'Emissions']}
+                    labelFormatter={() => ''}
+                  />
+                  <Bar dataKey="value" name="CO₂ Emissions" fill="#10B981" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
             
             <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">
