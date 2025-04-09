@@ -5,8 +5,7 @@ import FootprintCalculator from '../components/FootprintCalculator';
 import SustainabilityProgress from '../components/SustainabilityProgress';
 import GreenDestinationMap from '../components/GreenDestinationMap';
 import CarbonOffsetPrograms from '../components/CarbonOffsetPrograms';
-import YearlySustainabilityProgress from '../components/YearlySustainabilityProgress';
-import EcoTravelResources from '../components/EcoTravelResources';
+import CustomSustainabilityGoals from '../components/CustomSustainabilityGoals';
 import Footer from '../components/Footer';
 import { toast } from '@/components/ui/use-toast';
 
@@ -40,6 +39,10 @@ const Index = () => {
         </section>
         
         <section className="mb-12">
+          <CustomSustainabilityGoals />
+        </section>
+        
+        <section className="mb-12">
           <SustainabilityProgress />
         </section>
         
@@ -49,15 +52,6 @@ const Index = () => {
         
         <section className="mb-12">
           <CarbonOffsetPrograms />
-        </section>
-        
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Track Your Progress</h2>
-          <YearlySustainabilityProgress />
-        </section>
-        
-        <section className="mb-12">
-          <EcoTravelResources />
         </section>
       </main>
       

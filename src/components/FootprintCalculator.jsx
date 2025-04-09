@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 const transportOptions = [
   { value: 'flight', label: 'Flight', factor: 0.12 },
@@ -19,29 +19,38 @@ const accommodationOptions = [
   { value: 'homestay', label: 'Local Homestay', factor: 4 }
 ];
 
+const COLORS = ['#10B981', '#0EA5E9', '#F59E0B', '#EF4444'];
+
 const FootprintCalculator = ({ onCalculate }) => {
   const [transport, setTransport] = useState('');
   const [distance, setDistance] = useState('');
   const [accommodation, setAccommodation] = useState('');
   const [days, setDays] = useState('');
+  const [people, setPeople] = useState('1');
   const [result, setResult] = useState(null);
 
   const calculateFootprint = () => {
-    if (!transport || !distance || !accommodation || !days) {
+    if (!transport || !distance || !accommodation || !days || !people) {
       alert('Please fill in all fields');
       return;
     }
 
+    const numPeople = parseInt(people, 10);
     const transportOption = transportOptions.find(option => option.value === transport);
     const accommodationOption = accommodationOptions.find(option => option.value === accommodation);
     
-    const transportEmission = transportOption.factor * parseFloat(distance);
-    const accommodationEmission = accommodationOption.factor * parseFloat(days);
-    const totalEmission = Math.round(transportEmission + accommodationEmission);
+    const transportEmission = transportOption.factor * parseFloat(distance) * numPeople;
+    const accommodationEmission = accommodationOption.factor * parseFloat(days) * numPeople;
+    const foodEmission = 1.5 * parseFloat(days) * numPeople; // Estimating 1.5 kg CO2 per person per day for food
+    const activitiesEmission = 0.8 * parseFloat(days) * numPeople; // Estimating 0.8 kg CO2 per person per day for activities
+    
+    const totalEmission = Math.round(transportEmission + accommodationEmission + foodEmission + activitiesEmission);
     
     setResult({
       transport: transportEmission,
       accommodation: accommodationEmission,
+      food: foodEmission,
+      activities: activitiesEmission,
       total: totalEmission
     });
     
@@ -51,12 +60,25 @@ const FootprintCalculator = ({ onCalculate }) => {
   };
 
   // Chart data preparation
-  const getChartData = () => {
+  const getBarChartData = () => {
     if (!result) return [];
     
     return [
       { name: 'Transportation', value: Math.round(result.transport) },
-      { name: 'Accommodation', value: Math.round(result.accommodation) }
+      { name: 'Accommodation', value: Math.round(result.accommodation) },
+      { name: 'Food', value: Math.round(result.food) },
+      { name: 'Activities', value: Math.round(result.activities) }
+    ];
+  };
+  
+  const getPieChartData = () => {
+    if (!result) return [];
+    
+    return [
+      { name: 'Transportation', value: Math.round(result.transport) },
+      { name: 'Accommodation', value: Math.round(result.accommodation) },
+      { name: 'Food', value: Math.round(result.food) },
+      { name: 'Activities', value: Math.round(result.activities) }
     ];
   };
 
@@ -132,6 +154,21 @@ const FootprintCalculator = ({ onCalculate }) => {
             />
           </div>
           
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="people">
+              Number of People
+            </label>
+            <input 
+              id="people" 
+              type="number" 
+              className="eco-input" 
+              placeholder="Enter number of people"
+              value={people}
+              onChange={(e) => setPeople(e.target.value)}
+              min="1"
+            />
+          </div>
+          
           <button 
             className="eco-button w-full mt-4"
             onClick={calculateFootprint}
@@ -153,10 +190,34 @@ const FootprintCalculator = ({ onCalculate }) => {
               <p className="text-muted-foreground">CO₂ equivalent</p>
             </div>
             
-            {/* Carbon Footprint Chart */}
+            {/* Carbon Footprint Pie Chart */}
+            <div className="h-[220px] mb-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={getPieChartData()}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {getPieChartData().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value} kg CO₂`} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Bar Chart (optional) */}
             <div className="h-[200px] mb-4">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={getChartData()} layout="vertical">
+                <BarChart data={getBarChartData()} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
                   <YAxis dataKey="name" type="category" />
@@ -164,7 +225,11 @@ const FootprintCalculator = ({ onCalculate }) => {
                     formatter={(value) => [`${value} kg CO₂`, 'Emissions']}
                     labelFormatter={() => ''}
                   />
-                  <Bar dataKey="value" name="CO₂ Emissions" fill="#10B981" />
+                  <Bar dataKey="value" name="CO₂ Emissions" fill="#10B981">
+                    {getBarChartData().map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>

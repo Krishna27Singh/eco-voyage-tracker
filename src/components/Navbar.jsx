@@ -12,8 +12,6 @@ const Navbar = () => {
         </div>
         <div className="hidden md:flex items-center space-x-6">
           <a href="#" className="font-medium text-eco-700">Dashboard</a>
-          <a href="#" className="font-medium text-muted-foreground hover:text-eco-500">Resources</a>
-          <a href="#" className="font-medium text-muted-foreground hover:text-eco-500">About</a>
         </div>
       </div>
     </nav>
